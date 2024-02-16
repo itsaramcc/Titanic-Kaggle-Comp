@@ -1,0 +1,156 @@
+---
+title: "Titanic Challenge Kaggle"
+bibliography: references.bib
+---
+
+```{r}
+#| label: load-packages
+#| include: false
+
+library(tidyverse)
+library(knitr)
+
+library(randomForest)
+library(nnet)
+```
+
+## The Challenge
+
+The sinking of the Titanic is one of the most infamous shipwrecks in history.
+
+On April 15, 1912, during her maiden voyage, the widely considered "unsinkable" RMS Titanic sank after colliding with an iceberg. Unfortunately, there weren't enough lifeboats for everyone onboard, resulting in the death of 1502 out of 2224 passengers and crew.
+
+While there was some element of luck involved in surviving, it seems some groups of people were more likely to survive than others.
+
+In this challenge, we ask you to build a predictive model that answers the question: "what sorts of people were more likely to survive?" using passenger data (ie name, age, gender, socio-economic class, etc). [@titanic]
+
+## Loading Data
+
+```{r}
+#| output: false
+
+train <- read_csv("./data/train.csv")
+test  <- read_csv("./data/test.csv")
+```
+
+```{r}
+#| echo: false
+
+kable(head(train))
+```
+
+### Prepping Training Data
+
+```{r}
+
+titanic.training <- train %>% select(PassengerId, Survived, Pclass, Sex, Age, SibSp, Parch, Fare, Cabin, Embarked) %>% mutate(
+  FirstClass = as.integer(Pclass == 1),
+  SecondClass = as.integer(Pclass == 2),
+  ThirdClass = as.integer(Pclass == 3),
+  
+  Male = as.integer(Sex == "male"),
+  Female = as.integer(Sex == "female"),
+  
+  Cabins = case_when(
+    is.na(Cabin) ~ 0,
+    .default = unlist(str_split(Cabin, " ") %>% map(~ length(.x)))
+  ),
+  
+  Cherbourg = as.integer(Embarked == "C"),
+  Queenstown = as.integer(Embarked == "Q"),
+  Southampton = as.integer(Embarked == "S"),
+  
+  Age = recode(Age, .missing = median(train$Age, na.rm=TRUE)),
+  Fare = recode(Fare, .missing = median(train$Fare, na.rm=TRUE)),
+  
+  Survived = as.factor(Survived),
+  
+.keep="unused")
+```
+
+```{r}
+#| echo: false
+
+kable(head(titanic.training))
+```
+
+### Prepping Testing Data
+
+```{r}
+
+titanic.testing <- test %>% select(PassengerId, Pclass, Sex, Age, SibSp, Parch, Fare, Cabin, Embarked) %>% mutate(
+  FirstClass = as.integer(Pclass == 1),
+  SecondClass = as.integer(Pclass == 2),
+  ThirdClass = as.integer(Pclass == 3),
+  
+  Male = as.integer(Sex == "male"),
+  Female = as.integer(Sex == "female"),
+  
+  Cabins = case_when(
+    is.na(Cabin) ~ 0,
+    .default = unlist(str_split(Cabin, " ") %>% map(~ length(.x)))
+  ),
+  
+  Cherbourg = as.integer(Embarked == "C"),
+  Queenstown = as.integer(Embarked == "Q"),
+  Southampton = as.integer(Embarked == "S"),
+  
+  Age = recode(Age, .missing = median(train$Age, na.rm=TRUE)),
+  Fare = recode(Fare, .missing = median(train$Fare, na.rm=TRUE)),
+  
+  Survived = NA,
+  
+.keep="unused") %>% relocate(Survived, .after = PassengerId)
+```
+
+```{r}
+#| echo: false
+
+kable(head(titanic.testing))
+```
+
+## Models
+
+### Random Forest
+
+```{r}
+#| output: false
+
+rf <- randomForest(Survived~., data=titanic.training[,-1], na.action=na.roughfix)
+rf.pred_training = rf %>% predict(titanic.training)
+```
+
+```{r}
+#| echo: false
+
+kable(table(titanic.training$Survived, rf.pred_training))
+```
+
+### Neural Net
+
+```{r}
+#| output: false
+
+nn <- nnet(Survived~., data=titanic.training[,-1], size=13, na.action=na.roughfix)
+nn.pred_training = nn %>% predict(titanic.training, type="class")
+```
+
+```{r}
+#| echo: false
+
+kable(table(titanic.training$Survived, nn.pred_training))
+```
+
+## Result
+
+```{r}
+titanic.testing$Survived = nn %>% predict(titanic.testing, type="class")
+```
+
+```{r}
+#| echo: false
+
+# titanic.testing %>% select(PassengerId, Survived) %>% write_csv("output.csv")
+
+kable(head(titanic.testing))
+```
