@@ -1,9 +1,7 @@
-pdf: default
-
 ---
 title: "Titanic Challenge Kaggle"
 author: "Itsara McCarthy"
-toc: false
+toc: true
 format: 
   html: default
   gfm: default

@@ -1,7 +1,14 @@
 # Titanic Challenge Kaggle
 Itsara McCarthy
 
-pdf: default
+- [The Challenge](#the-challenge)
+- [Loading Data](#loading-data)
+  - [Prepping Training Data](#prepping-training-data)
+  - [Prepping Testing Data](#prepping-testing-data)
+- [Models](#models)
+  - [Random Forest](#random-forest)
+  - [Neural Net](#neural-net)
+- [Result](#result)
 
 ## The Challenge
 
@@ -122,8 +129,8 @@ rf.pred_training = rf %>% predict(titanic.training)
 
 |     |   0 |   1 |
 |:----|----:|----:|
-| 0   | 533 |  16 |
-| 1   |  76 | 264 |
+| 0   | 534 |  15 |
+| 1   |  83 | 257 |
 
 ### Neural Net
 
@@ -134,8 +141,8 @@ nn.pred_training = nn %>% predict(titanic.training, type="class")
 
 |     |   0 |   1 |
 |:----|----:|----:|
-| 0   | 454 |  95 |
-| 1   |  40 | 300 |
+| 0   | 510 |  39 |
+| 1   | 101 | 239 |
 
 ## Result
 
@@ -149,7 +156,7 @@ titanic.testing$Survived = nn %>% predict(titanic.testing, type="class")
 |         893 | 0        | 47.0 |     1 |     0 |  7.0000 |          0 |           0 |          1 |    0 |      1 |      0 |         0 |          0 |           1 |
 |         894 | 0        | 62.0 |     0 |     0 |  9.6875 |          0 |           1 |          0 |    1 |      0 |      0 |         0 |          1 |           0 |
 |         895 | 0        | 27.0 |     0 |     0 |  8.6625 |          0 |           0 |          1 |    1 |      0 |      0 |         0 |          0 |           1 |
-|         896 | 1        | 22.0 |     1 |     1 | 12.2875 |          0 |           0 |          1 |    0 |      1 |      0 |         0 |          0 |           1 |
+|         896 | 0        | 22.0 |     1 |     1 | 12.2875 |          0 |           0 |          1 |    0 |      1 |      0 |         0 |          0 |           1 |
 |         897 | 0        | 14.0 |     0 |     0 |  9.2250 |          0 |           0 |          1 |    1 |      0 |      0 |         0 |          0 |           1 |
 
 <div id="refs" class="references csl-bib-body hanging-indent"
