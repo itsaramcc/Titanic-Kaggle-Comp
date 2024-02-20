@@ -5,5 +5,4 @@
 
 /.quarto/
 
-/Titanic_Kaggle_Comp_files/
-*.html
+/_output/
